@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>War | CardMaster Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #1a2530;
+            --light: #ecf0f1;
+            --card-red: #e74c3c;
+            --card-black: #2c3e50;
+            --player-color: #3498db;
+            --computer-color: #e74c3c;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .logo i {
+            color: var(--secondary);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--player-color), var(--computer-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            color: #bdc3c7;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .game-container {
+            background: var(--dark);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .game-stat {
+            text-align: center;
+        }
+
+        .game-stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .player-stat .game-stat-value {
+            color: var(--player-color);
+        }
+
+        .computer-stat .game-stat-value {
+            color: var(--computer-color);
+        }
+
+        .game-stat-label {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            margin-top: 0.5rem;
+        }
+
+        .battlefield {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .player-area, .computer-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+        }
+
+        .player-label, .computer-label {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+        }
+
+        .player-label {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--player-color);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .computer-label {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--computer-color);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .card-pile {
+            width: 120px;
+            height: 170px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .card-pile i {
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .battle-cards {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin: 2rem 0;
+        }
+
+        .card {
+            width: 140px;
+            height: 200px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .card.red {
+            color: var(--card-red);
+        }
+
+        .card.black {
+            color: var(--card-black);
+        }
+
+        .card-top, .card-bottom {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .card-bottom {
+            align-items: flex-end;
+            transform: rotate(180deg);
+        }
+
+        .card-center {
+            font-size: 3.5rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .card-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .player-card .card-back {
+            background: linear-gradient(45deg, var(--player-color), #2980b9);
+        }
+
+        .computer-card .card-back {
+            background: linear-gradient(45deg, var(--computer-color), #c0392b);
+        }
+
+        .vs-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--warning);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            min-width: 140px;
+        }
+
+        .btn-primary {
+            background: var(--player-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background: #c0392b;
+            transform: translateY(-3px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+            transform: translateY(-3px);
+        }
+
+        .game-message {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .game-message.success {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .game-message.error {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--accent);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .game-message.info {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--secondary);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .war-message {
+            background: rgba(243, 156, 18, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            animation: pulse 1s infinite;
+        }
+
+        .instructions {
+            background: var(--dark);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .instructions ul {
+            list-style-type: none;
+            padding-left: 1rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .instructions li:before {
+            content: "•";
+            color: var(--secondary);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .back-button {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .back-button a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .back-button a:hover {
+            color: var(--success);
+        }
+
+        /* Animations */
+        @keyframes cardFlip {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(90deg); }
+            100% { transform: rotateY(0deg); }
+        }
+
+        .card-flip {
+            animation: cardFlip 0.6s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .battlefield {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .player-area, .computer-area {
+                width: 100%;
+            }
+            
+            .battle-cards {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .vs-badge {
+                position: relative;
+                top: 0;
+                left: 0;
+                transform: none;
+                margin: 1rem 0;
+            }
+            
+            .card {
+                width: 120px;
+                height: 170px;
+            }
+            
+            .card-top, .card-bottom {
+                font-size: 1.2rem;
+            }
+            
+            .card-center {
+                font-size: 2.5rem;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .card {
+                width: 100px;
+                height: 140px;
+            }
+            
+            .card-top, .card-bottom {
+                font-size: 1rem;
+            }
+            
+            .card-center {
+                font-size: 2rem;
+            }
+            
+            .card-pile {
+                width: 90px;
+                height: 130px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-dice"></i>
+                <span>CardMaster Pro</span>
+            </div>
+            <h1 class="page-title">War</h1>
+            <p class="page-subtitle">Classic card battle game. The highest card wins the round!</p>
+        </div>
+        
+        <div class="game-container">
+            <div class="game-stats">
+                <div class="game-stat player-stat">
+                    <div class="game-stat-value" id="playerScore">0</div>
+                    <div class="game-stat-label">Your Score</div>
+                </div>
+                <div class="game-stat computer-stat">
+                    <div class="game-stat-value" id="computerScore">0</div>
+                    <div class="game-stat-label">Computer Score</div>
+                </div>
+                <div class="game-stat">
+                    <div class="game-stat-value" id="roundsPlayed">0</div>
+                    <div class="game-stat-label">Rounds Played</div>
+                </div>
+                <div class="game-stat">
+                    <div class="game-stat-value" id="cardsRemaining">52</div>
+                    <div class="game-stat-label">Cards Left</div>
+                </div>
+            </div>
+            
+            <div class="battlefield">
+                <div class="player-area">
+                    <div class="player-label">You</div>
+                    <div class="card-pile" id="playerPile">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="player-card card black" id="playerCard">
+                        <div class="card-top">
+                            <span>?</span>
+                            <span>?</span>
+                        </div>
+                        <div class="card-center">
+                            <span>?</span>
+                        </div>
+                        <div class="card-bottom">
+                            <span>?</span>
+                            <span>?</span>
+                        </div>
+                        <div class="card-back"></div>
+                    </div>
+                </div>
+                
+                <div class="vs-badge">VS</div>
+                
+                <div class="computer-area">
+                    <div class="computer-label">Computer</div>
+                    <div class="card-pile" id="computerPile">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="computer-card card black" id="computerCard">
+                        <div class="card-top">
+                            <span>?</span>
+                            <span>?</span>
+                        </div>
+                        <div class="card-center">
+                            <span>?</span>
+                        </div>
+                        <div class="card-bottom">
+                            <span>?</span>
+                            <span>?</span>
+                        </div>
+                        <div class="card-back"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="message" class="game-message info">
+                Click "Play Round" to start the battle!
+            </div>
+            
+            <div class="game-controls">
+                <button class="btn btn-primary" id="playRoundBtn">Play Round</button>
+                <button class="btn btn-accent" id="newGameBtn">New Game</button>
+                <button class="btn btn-success" id="autoPlayBtn">Auto Play</button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play War:</h3>
+            <ul>
+                <li>Each round, you and the computer each play one card</li>
+                <li>The player with the higher card wins the round and gets both cards</li>
+                <li>Aces are high (value 14), followed by King (13), Queen (12), Jack (11)</li>
+                <li>If there's a tie (War!), each player places three cards face down and one face up</li>
+                <li>The player with the higher face-up card wins all the cards in the war</li>
+                <li>The game continues until one player has all the cards</li>
+                <li>Try to win more rounds than the computer!</li>
+            </ul>
+        </div>
+        
+        <div class="back-button">
+            <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            playerScore: 0,
+            computerScore: 0,
+            roundsPlayed: 0,
+            playerDeck: [],
+            computerDeck: [],
+            inWar: false,
+            warCards: [],
+            gameActive: false,
+            autoPlay: false
+        };
+
+        // Card values for comparison
+        const cardValues = {
+            '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+            'J': 11, 'Q': 12, 'K': 13, 'A': 14
+        };
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners
+            document.getElementById('playRoundBtn').addEventListener('click', playRound);
+            document.getElementById('newGameBtn').addEventListener('click', startNewGame);
+            document.getElementById('autoPlayBtn').addEventListener('click', toggleAutoPlay);
+            
+            // Start the game
+            startNewGame();
+        });
+
+        function startNewGame() {
+            // Reset game state
+            gameState.playerScore = 0;
+            gameState.computerScore = 0;
+            gameState.roundsPlayed = 0;
+            gameState.inWar = false;
+            gameState.warCards = [];
+            gameState.gameActive = true;
+            gameState.autoPlay = false;
+            
+            // Create and shuffle deck
+            const deck = createDeck();
+            shuffleDeck(deck);
+            
+            // Split deck between player and computer
+            gameState.playerDeck = deck.slice(0, 26);
+            gameState.computerDeck = deck.slice(26);
+            
+            // Update UI
+            updateStats();
+            resetCardDisplays();
+            
+            document.getElementById('message').textContent = 'Click "Play Round" to start the battle!';
+            document.getElementById('message').className = 'game-message info';
+            document.getElementById('autoPlayBtn').textContent = 'Auto Play';
+            
+            // Enable buttons
+            document.getElementById('playRoundBtn').disabled = false;
+        }
+
+        function playRound() {
+            if (!gameState.gameActive) return;
+            
+            // Check if decks are empty
+            if (gameState.playerDeck.length === 0 || gameState.computerDeck.length === 0) {
+                endGame();
+                return;
+            }
+            
+            // Draw cards
+            const playerCard = gameState.playerDeck.shift();
+            const computerCard = gameState.computerDeck.shift();
+            
+            // Display cards
+            displayCard(playerCard, 'playerCard');
+            displayCard(computerCard, 'computerCard');
+            
+            // Compare cards
+            const playerValue = cardValues[playerCard.rank];
+            const computerValue = cardValues[computerCard.rank];
+            
+            gameState.roundsPlayed++;
+            
+            // Determine winner
+            if (playerValue > computerValue) {
+                // Player wins
+                gameState.playerScore++;
+                gameState.playerDeck.push(playerCard, computerCard);
+                document.getElementById('message').textContent = `You win! ${playerCard.rank} of ${playerCard.suit} beats ${computerCard.rank} of ${computerCard.suit}`;
+                document.getElementById('message').className = 'game-message success';
+            } else if (computerValue > playerValue) {
+                // Computer wins
+                gameState.computerScore++;
+                gameState.computerDeck.push(playerCard, computerCard);
+                document.getElementById('message').textContent = `Computer wins! ${computerCard.rank} of ${computerCard.suit} beats ${playerCard.rank} of ${playerCard.suit}`;
+                document.getElementById('message').className = 'game-message error';
+            } else {
+                // War!
+                handleWar(playerCard, computerCard);
+                return;
+            }
+            
+            // Update UI
+            updateStats();
+            
+            // Check for game end
+            if (gameState.playerDeck.length === 0 || gameState.computerDeck.length === 0) {
+                setTimeout(endGame, 1500);
+            }
+            
+            // Continue auto-play if enabled
+            if (gameState.autoPlay && gameState.gameActive) {
+                setTimeout(playRound, 1000);
+            }
+        }
+
+        function handleWar(playerCard, computerCard) {
+            gameState.inWar = true;
+            gameState.warCards = [playerCard, computerCard];
+            
+            document.getElementById('message').textContent = 'WAR! Cards are equal. Placing three cards face down...';
+            document.getElementById('message').className = 'game-message war-message';
+            
+            // Check if players have enough cards for war
+            if (gameState.playerDeck.length < 4 || gameState.computerDeck.length < 4) {
+                // Not enough cards for war - award to player with more cards
+                if (gameState.playerDeck.length > gameState.computerDeck.length) {
+                    gameState.playerScore += 2;
+                    gameState.playerDeck.push(...gameState.warCards);
+                } else {
+                    gameState.computerScore += 2;
+                    gameState.computerDeck.push(...gameState.warCards);
+                }
+                
+                gameState.inWar = false;
+                gameState.warCards = [];
+                updateStats();
+                return;
+            }
+            
+            // Place three cards face down and one face up for war
+            setTimeout(() => {
+                const playerWarCards = gameState.playerDeck.splice(0, 4);
+                const computerWarCards = gameState.computerDeck.splice(0, 4);
+                
+                const playerWarCard = playerWarCards[3];
+                const computerWarCard = computerWarCards[3];
+                
+                gameState.warCards.push(...playerWarCards, ...computerWarCards);
+                
+                // Display war cards
+                displayCard(playerWarCard, 'playerCard');
+                displayCard(computerWarCard, 'computerCard');
+                
+                // Compare war cards
+                const playerWarValue = cardValues[playerWarCard.rank];
+                const computerWarValue = cardValues[computerWarCard.rank];
+                
+                if (playerWarValue > computerWarValue) {
+                    // Player wins war
+                    gameState.playerScore += 2;
+                    gameState.playerDeck.push(...gameState.warCards);
+                    document.getElementById('message').textContent = `You win the WAR! ${playerWarCard.rank} of ${playerWarCard.suit} beats ${computerWarCard.rank} of ${computerWarCard.suit}`;
+                    document.getElementById('message').className = 'game-message success';
+                } else if (computerWarValue > playerWarValue) {
+                    // Computer wins war
+                    gameState.computerScore += 2;
+                    gameState.computerDeck.push(...gameState.warCards);
+                    document.getElementById('message').textContent = `Computer wins the WAR! ${computerWarCard.rank} of ${computerWarCard.suit} beats ${playerWarCard.rank} of ${playerWarCard.suit}`;
+                    document.getElementById('message').className = 'game-message error';
+                } else {
+                    // Another war - recursive call
+                    document.getElementById('message').textContent = 'Another WAR! Cards are equal again.';
+                    handleWar(playerWarCard, computerWarCard);
+                    return;
+                }
+                
+                gameState.inWar = false;
+                gameState.warCards = [];
+                updateStats();
+                
+                // Check for game end
+                if (gameState.playerDeck.length === 0 || gameState.computerDeck.length === 0) {
+                    setTimeout(endGame, 1500);
+                }
+                
+                // Continue auto-play if enabled
+                if (gameState.autoPlay && gameState.gameActive) {
+                    setTimeout(playRound, 1500);
+                }
+            }, 2000);
+        }
+
+        function endGame() {
+            gameState.gameActive = false;
+            gameState.autoPlay = false;
+            
+            let message = '';
+            if (gameState.playerScore > gameState.computerScore) {
+                message = `You win the game! Final score: ${gameState.playerScore} - ${gameState.computerScore}`;
+                document.getElementById('message').className = 'game-message success';
+            } else if (gameState.computerScore > gameState.playerScore) {
+                message = `Computer wins the game! Final score: ${gameState.playerScore} - ${gameState.computerScore}`;
+                document.getElementById('message').className = 'game-message error';
+            } else {
+                message = `It's a tie! Final score: ${gameState.playerScore} - ${gameState.computerScore}`;
+                document.getElementById('message').className = 'game-message info';
+            }
+            
+            document.getElementById('message').textContent = message;
+            document.getElementById('autoPlayBtn').textContent = 'Auto Play';
+            document.getElementById('playRoundBtn').disabled = true;
+        }
+
+        function toggleAutoPlay() {
+            if (!gameState.gameActive) return;
+            
+            gameState.autoPlay = !gameState.autoPlay;
+            
+            if (gameState.autoPlay) {
+                document.getElementById('autoPlayBtn').textContent = 'Stop Auto Play';
+                playRound();
+            } else {
+                document.getElementById('autoPlayBtn').textContent = 'Auto Play';
+            }
+        }
+
+        function createDeck() {
+            const suits = ['♥', '♦', '♣', '♠'];
+            const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            
+            const deck = [];
+            for (let suit of suits) {
+                for (let rank of ranks) {
+                    deck.push({
+                        suit: suit,
+                        rank: rank,
+                        color: (suit === '♥' || suit === '♦') ? 'red' : 'black'
+                    });
+                }
+            }
+            return deck;
+        }
+
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function displayCard(card, elementId) {
+            const cardElement = document.getElementById(elementId);
+            cardElement.className = `${elementId} card ${card.color} card-flip`;
+            
+            // Update card content
+            const topElement = cardElement.querySelector('.card-top');
+            const centerElement = cardElement.querySelector('.card-center');
+            const bottomElement = cardElement.querySelector('.card-bottom');
+            
+            topElement.innerHTML = `<span>${card.rank}</span><span>${card.suit}</span>`;
+            centerElement.innerHTML = `<span>${card.rank}</span>`;
+            bottomElement.innerHTML = `<span>${card.rank}</span><span>${card.suit}</span>`;
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                cardElement.classList.remove('card-flip');
+            }, 600);
+        }
+
+        function resetCardDisplays() {
+            const playerCard = document.getElementById('playerCard');
+            const computerCard = document.getElementById('computerCard');
+            
+            playerCard.className = 'player-card card black';
+            computerCard.className = 'computer-card card black';
+            
+            const playerTop = playerCard.querySelector('.card-top');
+            const playerCenter = playerCard.querySelector('.card-center');
+            const playerBottom = playerCard.querySelector('.card-bottom');
+            
+            const computerTop = computerCard.querySelector('.card-top');
+            const computerCenter = computerCard.querySelector('.card-center');
+            const computerBottom = computerCard.querySelector('.card-bottom');
+            
+            playerTop.innerHTML = '<span>?</span><span>?</span>';
+            playerCenter.innerHTML = '<span>?</span>';
+            playerBottom.innerHTML = '<span>?</span><span>?</span>';
+            
+            computerTop.innerHTML = '<span>?</span><span>?</span>';
+            computerCenter.innerHTML = '<span>?</span>';
+            computerBottom.innerHTML = '<span>?</span><span>?</span>';
+        }
+
+        function updateStats() {
+            document.getElementById('playerScore').textContent = gameState.playerScore;
+            document.getElementById('computerScore').textContent = gameState.computerScore;
+            document.getElementById('roundsPlayed').textContent = gameState.roundsPlayed;
+            document.getElementById('cardsRemaining').textContent = gameState.playerDeck.length + gameState.computerDeck.length;
+            
+            // Update card pile counts
+            document.getElementById('playerPile').innerHTML = `<i class="fas fa-layer-group"></i><br><small>${gameState.playerDeck.length}</small>`;
+            document.getElementById('computerPile').innerHTML = `<i class="fas fa-layer-group"></i><br><small>${gameState.computerDeck.length}</small>`;
+        }
+    </script>
+</body>
+</html>

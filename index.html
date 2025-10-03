@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardMaster Pro | Advanced Card Gaming Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #1a2530;
+            --light: #ecf0f1;
+            --card-red: #e74c3c;
+            --card-black: #2c3e50;
+            --sidebar-width: 260px;
+            --header-height: 70px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Authentication Modal */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .auth-container {
+            background: var(--dark);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            border-bottom: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #bdc3c7;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #34495e;
+            border-radius: 6px;
+            background: #2c3e50;
+            color: var(--light);
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: none;
+        }
+
+        .header {
+            height: var(--header-height);
+            background: var(--dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        .logo i {
+            color: var(--secondary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .main-container {
+            display: flex;
+            margin-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--dark);
+            padding: 2rem 0;
+            height: calc(100vh - var(--header-height));
+            position: fixed;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(52, 73, 94, 0.5);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #bdc3c7;
+            font-size: 1rem;
+        }
+
+        /* Dashboard Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--dark);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.primary {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--secondary);
+        }
+
+        .stat-icon.success {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+
+        .stat-icon.warning {
+            background: rgba(243, 156, 18, 0.2);
+            color: var(--warning);
+        }
+
+        .stat-icon.accent {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--accent);
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-info p {
+            color: #bdc3c7;
+            font-size: 0.9rem;
+        }
+
+        /* Card Display */
+        .card-display {
+            background: var(--dark);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+            gap: 2rem;
+        }
+
+        .card {
+            width: 200px;
+            height: 280px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .card.red {
+            color: var(--card-red);
+        }
+
+        .card.black {
+            color: var(--card-black);
+        }
+
+        .card-top, .card-bottom {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .card-bottom {
+            align-items: flex-end;
+            transform: rotate(180deg);
+        }
+
+        .card-center {
+            font-size: 4rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .card-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            border-radius: 12px;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn-secondary {
+            background: #34495e;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #3d566e;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background: #c0392b;
+        }
+
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .game-card {
+            background: var(--dark);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-image {
+            height: 160px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .game-info {
+            padding: 1.5rem;
+        }
+
+        .game-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-description {
+            color: #bdc3c7;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Game Screen */
+        .game-screen {
+            background: var(--dark);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .game-stat {
+            text-align: center;
+        }
+
+        .game-stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .game-stat-label {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .game-message {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .game-message.success {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+
+        .game-message.error {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--accent);
+        }
+
+        .game-message.info {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--secondary);
+        }
+
+        /* Probability Section */
+        .probability-section {
+            background: var(--dark);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .probability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .probability-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .probability-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .probability-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .probability-label {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+        }
+
+        .probability-bar {
+            height: 8px;
+            background: #34495e;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .probability-fill {
+            height: 100%;
+            background: var(--secondary);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .card-probability {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-probability-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .card-probability-icon.red {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--card-red);
+        }
+
+        .card-probability-icon.black {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--card-black);
+        }
+
+        .probability-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #34495e;
+        }
+
+        .probability-detail {
+            text-align: center;
+            flex: 1;
+        }
+
+        .probability-detail-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .probability-detail-label {
+            font-size: 0.8rem;
+            color: #bdc3c7;
+        }
+
+        /* Card History */
+        .card-history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .history-card {
+            width: 60px;
+            height: 84px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .history-card.red {
+            color: var(--card-red);
+        }
+
+        .history-card.black {
+            color: var(--card-black);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+                overflow: visible;
+            }
+            
+            .nav-item span {
+                display: none;
+            }
+            
+            .content {
+                margin-left: 70px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .probability-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="register">Register</div>
+            </div>
+            
+            <form class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%">Login</button>
+            </form>
+            
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" placeholder="Create a password" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerConfirmPassword">Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" placeholder="Confirm your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-dice"></i>
+                <span>CardMaster Pro</span>
+            </div>
+            <div class="user-info">
+                <span id="userGreeting">Welcome, User!</span>
+                <div class="user-avatar" id="userAvatar">U</div>
+            </div>
+        </header>
+        
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="cardPicker">
+                    <i class="fas fa-random"></i>
+                    <span>Card Picker</span>
+                </div>
+                <div class="nav-item" data-page="miniGames">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Mini Games</span>
+                </div>
+                <div class="nav-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </div>
+            </aside>
+            
+            <main class="content">
+                <!-- Dashboard Page -->
+                <div class="page active" id="dashboardPage">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-subtitle">Welcome to your card gaming hub</p>
+                    </div>
+                    
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fas fa-dice"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="gamesPlayed">0</h3>
+                                <p>Games Played</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="gamesWon">0</h3>
+                                <p>Games Won</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="winRate">0%</h3>
+                                <p>Win Rate</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon accent">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="currentStreak">0</h3>
+                                <p>Current Streak</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-display">
+                        <h2>Quick Card Draw</h2>
+                        <div class="card-container">
+                            <div class="card black" id="quickCard">
+                                <div class="card-top">
+                                    <span>A</span>
+                                    <span>♠</span>
+                                </div>
+                                <div class="card-center">
+                                    <span>A</span>
+                                </div>
+                                <div class="card-bottom">
+                                    <span>A</span>
+                                    <span>♠</span>
+                                </div>
+                                <div class="card-back">
+                                    <i class="fas fa-dice"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="controls">
+                            <button class="btn btn-primary" id="drawQuickCard">Draw Card</button>
+                        </div>
+                    </div>
+                    
+                    <div class="page-header">
+                        <h2 class="page-title">Quick Play</h2>
+                    </div>
+                    
+                    <div class="games-grid">
+                        <div class="game-card" data-game="higherLower">
+                            <div class="game-image">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                           <div class="game-info">
+    <h3 class="game-title">Higher or Lower</h3>
+    <p class="game-description">Guess if the next card will be higher or lower than the current one.</p>
+    <a href="higher-or-lower.html" class="btn btn-primary">Play Now</a>
+</div>
+                        </div>
+                        
+                        <div class="game-card" data-game="war">
+                            <div class="game-image">
+                                <i class="fas fa-fist-raised"></i>
+                            </div>
+                            <div class="game-info">
+                                <h3 class="game-title">War</h3>
+                                <p class="game-description">Classic card battle game. The highest card wins the round.</p>
+                                   <a href="war.html" class="btn btn-primary">Play Now</a>
+                            </div>
+                        </div>
+                        
+                        <div class="game-card" data-game="memory">
+                            <div class="game-image">
+                                <i class="fas fa-fish"></i>
+                            </div>
+                            <div class="game-info">
+                                <h3 class="game-title">Go Fish</h3>
+                                <p class="game-description">Ask your opponent for cards to make matches in your hand.</p>
+                                <button class="btn btn-primary play-game">Play Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Picker Page -->
+                <div class="page" id="cardPickerPage">
+                    <div class="page-header">
+                        <h1 class="page-title">Advanced Card Picker</h1>
+                        <p class="page-subtitle">Draw random cards with probability analysis</p>
+                    </div>
+                    
+                    <div class="card-display">
+                        <h2>Your Card</h2>
+                        <div class="card-container">
+                            <div class="card red" id="mainCard">
+                                <div class="card-top">
+                                    <span>K</span>
+                                    <span>♥</span>
+                                </div>
+                                <div class="card-center">
+                                    <span>K</span>
+                                </div>
+                                <div class="card-bottom">
+                                    <span>K</span>
+                                    <span>♥</span>
+                                </div>
+                                <div class="card-back">
+                                    <i class="fas fa-dice"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="controls">
+                            <button class="btn btn-primary" id="drawCard">Draw Card</button>
+                            <button class="btn btn-secondary" id="resetDeck">Reset Deck</button>
+                            <button class="btn btn-accent" id="shuffleDeck">Shuffle Deck</button>
+                            <button class="btn btn-success" id="drawMultiple">Draw 5 Cards</button>
+                        </div>
+                        <p id="remainingCards">Cards remaining: 52</p>
+                    </div>
+                    
+                    <!-- Probability Analysis Section -->
+                    <div class="probability-section">
+                        <h2>Probability Analysis</h2>
+                        <p class="page-subtitle">Real-time probabilities for the remaining cards</p>
+                        
+                        <div class="probability-details">
+                            <div class="probability-detail">
+                                <div class="probability-detail-value" id="redProbability">50%</div>
+                                <div class="probability-detail-label">Red Cards</div>
+                            </div>
+                            <div class="probability-detail">
+                                <div class="probability-detail-value" id="blackProbability">50%</div>
+                                <div class="probability-detail-label">Black Cards</div>
+                            </div>
+                            <div class="probability-detail">
+                                <div class="probability-detail-value" id="faceProbability">23.1%</div>
+                                <div class="probability-detail-label">Face Cards</div>
+                            </div>
+                            <div class="probability-detail">
+                                <div class="probability-detail-value" id="aceProbability">7.7%</div>
+                                <div class="probability-detail-label">Aces</div>
+                            </div>
+                        </div>
+                        
+                        <h3 style="margin-top: 1.5rem;">Probability by Rank</h3>
+                        <div class="probability-grid" id="rankProbability">
+                            <!-- Rank probabilities will be populated here -->
+                        </div>
+                        
+                        <h3 style="margin-top: 1.5rem;">Probability by Suit</h3>
+                        <div class="probability-grid" id="suitProbability">
+                            <!-- Suit probabilities will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="page-header">
+                        <h2 class="page-title">Card History</h2>
+                    </div>
+                    
+                    <div id="cardHistory" class="stats-cards">
+                        <!-- Card history will be populated here -->
+                    </div>
+                    
+                    <div class="page-header">
+                        <h2 class="page-title">Recent Draws</h2>
+                    </div>
+                    
+                    <div class="card-history" id="recentDraws">
+                        <!-- Recent cards will be displayed here -->
+                    </div>
+                </div>
+                
+                <!-- Mini Games Page -->
+                <div class="page" id="miniGamesPage">
+                    <div class="page-header">
+                        <h1 class="page-title">Mini Games</h1>
+                        <p class="page-subtitle">Test your skills with these card games</p>
+                    </div>
+                    
+                    <div class="games-grid">
+                        <div class="game-card" data-game="higherLower">
+                            <div class="game-image" style="background: linear-gradient(45deg, #3498db, #2ecc71);">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                          <div class="game-info">
+    <h3 class="game-title">Higher or Lower</h3>
+    <p class="game-description">Guess if the next card will be higher or lower than the current one.</p>
+    <a href="higher-or-lower.html" class="btn btn-primary">Play Now</a>
+</div>
+                        </div>
+                        
+                        <div class="game-card" data-game="war">
+                            <div class="game-image" style="background: linear-gradient(45deg, #e74c3c, #f39c12);">
+                                <i class="fas fa-fist-raised"></i>
+                            </div>
+                            <div class="game-info">
+                                <h3 class="game-title">War</h3>
+                                <p class="game-description">Classic card battle game. The highest card wins the round. Play against the computer!</p>
+                                <div class="controls">
+                                   <a href="war.html" class="btn btn-primary">Play Now</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="game-card" data-game="goFish">
+                            <div class="game-image" style="background: linear-gradient(45deg, #9b59b6, #3498db);">
+                                <i class="fas fa-fish"></i>
+                            </div>
+                            <div class="game-info">
+                                <h3 class="game-title">Go Fish</h3>
+                                <p class="game-description">Ask your opponent for cards to make matches in your hand. First to run out of cards wins!</p>
+                                <div class="controls">
+                                    <button class="btn btn-primary play-game">Play Now</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="game-card" data-game="memory">
+                            <div class="game-image" style="background: linear-gradient(45deg, #1abc9c, #2ecc71);">
+                                <i class="fas fa-memory"></i>
+                            </div>
+                            <div class="game-info">
+                                <h3 class="game-title">Memory Match</h3>
+                                <p class="game-description">Flip cards to find matching pairs. Test your memory with this classic game!</p>
+                                <div class="controls">
+                                    <button class="btn btn-primary play-game">Play Now</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="game-card" data-game="blackjack">
+                            <div class="game-image" style="background: linear-gradient(45deg, #e67e22, #e74c3c);">
+                                <i class="fas fa-chess"></i>
+                            </div>
+                            <div class="game-info">
+                                <h3 class="game-title">Blackjack</h3>
+                                <p class="game-description">Try to get as close to 21 as possible without going over. Beat the dealer to win!</p>
+                                <div class="controls">
+                                    <button class="btn btn-primary play-game">Play Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Higher or Lower Game Page -->
+                <div class="page" id="higherLowerPage">
+                    <div class="page-header">
+                        <h1 class="page-title">Higher or Lower</h1>
+                        <p class="page-subtitle">Guess if the next card will be higher or lower than the current card</p>
+                    </div>
+                    
+                    <div class="game-screen">
+                        <div class="game-stats">
+                            <div class="game-stat">
+                                <div class="game-stat-value" id="hlScore">0</div>
+                                <div class="game-stat-label">Score</div>
+                            </div>
+                            <div class="game-stat">
+                                <div class="game-stat-value" id="hlStreak">0</div>
+                                <div class="game-stat-label">Current Streak</div>
+                            </div>
+                            <div class="game-stat">
+                                <div class="game-stat-value" id="hlBest">0</div>
+                                <div class="game-stat-label">Best Streak</div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-container">
+                            <div class="card red" id="hlCurrentCard">
+                                <div class="card-top">
+                                    <span>7</span>
+                                    <span>♥</span>
+                                </div>
+                                <div class="card-center">
+                                    <span>7</span>
+                                </div>
+                                <div class="card-bottom">
+                                    <span>7</span>
+                                    <span>♥</span>
+                                </div>
+                                <div class="card-back">
+                                    <i class="fas fa-dice"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="card black" id="hlNextCard">
+                                <div class="card-top">
+                                    <span>?</span>
+                                    <span>?</span>
+                                </div>
+                                <div class="card-center">
+                                    <span>?</span>
+                                </div>
+                                <div class="card-bottom">
+                                    <span>?</span>
+                                    <span>?</span>
+                                </div>
+                                <div class="card-back">
+                                    <i class="fas fa-dice"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="hlMessage" class="game-message info">
+                            Will the next card be Higher or Lower?
+                        </div>
+                        
+                        <div class="game-controls">
+                            <button class="btn btn-success" id="hlHigher">Higher</button>
+                            <button class="btn btn-warning" id="hlLower">Lower</button>
+                            <button class="btn btn-secondary" id="hlNewGame">New Game</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Game state management
+        const gameState = {
+            currentUser: null,
+            stats: {
+                gamesPlayed: 0,
+                gamesWon: 0,
+                currentStreak: 0,
+                bestStreak: 0
+            },
+            higherLower: {
+                score: 0,
+                currentStreak: 0,
+                bestStreak: 0,
+                currentCard: null,
+                nextCard: null,
+                deck: []
+            }
+        };
+
+        // Card values for comparison
+        const cardValues = {
+            '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+            'J': 11, 'Q': 12, 'K': 13, 'A': 14
+        };
+
+        // Card deck management
+        let deck = [];
+        let drawnCards = [];
+        let recentDraws = [];
+
+        // Authentication Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in (from localStorage)
+            const savedUser = localStorage.getItem('currentUser');
+            const savedStats = localStorage.getItem('userStats');
+            
+            if (savedUser) {
+                gameState.currentUser = JSON.parse(savedUser);
+                if (savedStats) {
+                    gameState.stats = JSON.parse(savedStats);
+                }
+                showDashboard();
+            }
+            
+            // Tab switching in auth modal
+            const authTabs = document.querySelectorAll('.auth-tab');
+            authTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    authTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding form
+                    document.querySelectorAll('.auth-form').forEach(form => {
+                        form.classList.remove('active');
+                    });
+                    document.getElementById(`${tabName}Form`).classList.add('active');
+                });
+            });
+            
+            // Login form submission
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                // Simple validation
+                if (email && password) {
+                    gameState.currentUser = {
+                        name: email.split('@')[0],
+                        email: email,
+                        avatar: email.charAt(0).toUpperCase()
+                    };
+                    
+                    // Store user in localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(gameState.currentUser));
+                    showDashboard();
+                }
+            });
+            
+            // Register form submission
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('registerConfirmPassword').value;
+                
+                // Simple validation
+                if (name && email && password && password === confirmPassword) {
+                    gameState.currentUser = {
+                        name: name,
+                        email: email,
+                        avatar: name.charAt(0).toUpperCase()
+                    };
+                    
+                    // Store user in localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(gameState.currentUser));
+                    showDashboard();
+                } else if (password !== confirmPassword) {
+                    alert("Passwords don't match!");
+                }
+            });
+            
+            // Navigation
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    if (this.id === 'logoutBtn') {
+                        logout();
+                        return;
+                    }
+                    
+                    const pageId = this.getAttribute('data-page');
+                    navigateToPage(pageId);
+                    
+                    // Update probabilities when navigating to card picker
+                    if (pageId === 'cardPicker') {
+                        updateProbabilityDisplay();
+                    }
+                });
+            });
+            
+            // Game navigation
+            document.querySelectorAll('.play-game').forEach(button => {
+                button.addEventListener('click', function() {
+                    const gameCard = this.closest('.game-card');
+                    const gameType = gameCard.getAttribute('data-game');
+                    startGame(gameType);
+                });
+            });
+            
+            // Card drawing functionality
+            document.getElementById('drawCard').addEventListener('click', drawCard);
+            document.getElementById('drawQuickCard').addEventListener('click', drawQuickCard);
+            document.getElementById('resetDeck').addEventListener('click', resetDeck);
+            document.getElementById('shuffleDeck').addEventListener('click', shuffleDeck);
+            document.getElementById('drawMultiple').addEventListener('click', drawMultipleCards);
+            
+            // Higher or Lower game controls
+            document.getElementById('hlHigher').addEventListener('click', () => makeGuess('higher'));
+            document.getElementById('hlLower').addEventListener('click', () => makeGuess('lower'));
+            document.getElementById('hlNewGame').addEventListener('click', startHigherLowerGame);
+            
+            // Initialize deck
+            resetDeck();
+            
+            // Update stats display
+            updateStatsDisplay();
+        });
+        
+        function showDashboard() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('userGreeting').textContent = `Welcome, ${gameState.currentUser.name}!`;
+            document.getElementById('userAvatar').textContent = gameState.currentUser.avatar;
+        }
+        
+        function logout() {
+            // Save stats before logging out
+            localStorage.setItem('userStats', JSON.stringify(gameState.stats));
+            
+            gameState.currentUser = null;
+            localStorage.removeItem('currentUser');
+            
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('authModal').style.display = 'flex';
+            
+            // Reset forms
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+        }
+        
+        function navigateToPage(pageId) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.querySelector(`.nav-item[data-page="${pageId}"]`).classList.add('active');
+            
+            // Show corresponding page
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`${pageId}Page`).classList.add('active');
+        }
+        
+        function startGame(gameType) {
+            if (gameType === 'higherLower') {
+                navigateToPage('higherLower');
+                startHigherLowerGame();
+            }
+            // Other games will be implemented here
+        }
+        
+        function startHigherLowerGame() {
+            // Initialize game state
+            gameState.higherLower.score = 0;
+            gameState.higherLower.currentStreak = 0;
+            gameState.higherLower.deck = createDeck();
+            shuffleDeck(gameState.higherLower.deck);
+            
+            // Draw first card
+            gameState.higherLower.currentCard = drawCardFromDeck(gameState.higherLower.deck);
+            gameState.higherLower.nextCard = null;
+            
+            // Update UI
+            displayCard(gameState.higherLower.currentCard, 'hlCurrentCard');
+            resetNextCardDisplay();
+            
+            document.getElementById('hlScore').textContent = '0';
+            document.getElementById('hlStreak').textContent = '0';
+            document.getElementById('hlBest').textContent = gameState.higherLower.bestStreak;
+            document.getElementById('hlMessage').textContent = 'Will the next card be Higher or Lower?';
+            document.getElementById('hlMessage').className = 'game-message info';
+            
+            // Enable buttons
+            document.getElementById('hlHigher').disabled = false;
+            document.getElementById('hlLower').disabled = false;
+        }
+        
+        function makeGuess(guess) {
+            if (!gameState.higherLower.currentCard || gameState.higherLower.deck.length === 0) {
+                return;
+            }
+            
+            // Draw next card
+            gameState.higherLower.nextCard = drawCardFromDeck(gameState.higherLower.deck);
+            displayCard(gameState.higherLower.nextCard, 'hlNextCard');
+            
+            // Get card values
+            const currentValue = cardValues[gameState.higherLower.currentCard.rank];
+            const nextValue = cardValues[gameState.higherLower.nextCard.rank];
+            
+            // Check if guess is correct
+            let isCorrect = false;
+            if (guess === 'higher' && nextValue > currentValue) {
+                isCorrect = true;
+            } else if (guess === 'lower' && nextValue < currentValue) {
+                isCorrect = true;
+            } else if (nextValue === currentValue) {
+                // If cards are equal, it's a tie
+                isCorrect = true; // Count ties as correct to keep the game going
+            }
+            
+            // Update game state
+            if (isCorrect) {
+                gameState.higherLower.score += 10;
+                gameState.higherLower.currentStreak++;
+                gameState.higherLower.bestStreak = Math.max(gameState.higherLower.bestStreak, gameState.higherLower.currentStreak);
+                
+                document.getElementById('hlMessage').textContent = 'Correct! The card was ' + 
+                    (nextValue > currentValue ? 'higher' : (nextValue < currentValue ? 'lower' : 'the same')) + '.';
+                document.getElementById('hlMessage').className = 'game-message success';
+            } else {
+                gameState.higherLower.currentStreak = 0;
+                document.getElementById('hlMessage').textContent = 'Wrong! The card was ' + 
+                    (nextValue > currentValue ? 'higher' : 'lower') + '.';
+                document.getElementById('hlMessage').className = 'game-message error';
+            }
+            
+            // Update UI
+            document.getElementById('hlScore').textContent = gameState.higherLower.score;
+            document.getElementById('hlStreak').textContent = gameState.higherLower.currentStreak;
+            document.getElementById('hlBest').textContent = gameState.higherLower.bestStreak;
+            
+            // Update stats
+            gameState.stats.gamesPlayed++;
+            if (isCorrect) {
+                gameState.stats.gamesWon++;
+                gameState.stats.currentStreak++;
+                gameState.stats.bestStreak = Math.max(gameState.stats.bestStreak, gameState.stats.currentStreak);
+            } else {
+                gameState.stats.currentStreak = 0;
+            }
+            
+            updateStatsDisplay();
+            
+            // Set current card to next card for next round
+            setTimeout(() => {
+                gameState.higherLower.currentCard = gameState.higherLower.nextCard;
+                displayCard(gameState.higherLower.currentCard, 'hlCurrentCard');
+                resetNextCardDisplay();
+                
+                // Check if game is over
+                if (gameState.higherLower.deck.length === 0) {
+                    document.getElementById('hlMessage').textContent = 'Game Over! You scored ' + gameState.higherLower.score + ' points.';
+                    document.getElementById('hlHigher').disabled = true;
+                    document.getElementById('hlLower').disabled = true;
+                } else {
+                    document.getElementById('hlMessage').textContent = 'Will the next card be Higher or Lower?';
+                    document.getElementById('hlMessage').className = 'game-message info';
+                }
+            }, 2000);
+        }
+        
+        function resetNextCardDisplay() {
+            const nextCardElement = document.getElementById('hlNextCard');
+            nextCardElement.className = 'card black';
+            
+            const topElement = nextCardElement.querySelector('.card-top');
+            const centerElement = nextCardElement.querySelector('.card-center');
+            const bottomElement = nextCardElement.querySelector('.card-bottom');
+            
+            topElement.innerHTML = '<span>?</span><span>?</span>';
+            centerElement.innerHTML = '<span>?</span>';
+            bottomElement.innerHTML = '<span>?</span><span>?</span>';
+        }
+        
+        function createDeck() {
+            const suits = ['♥', '♦', '♣', '♠'];
+            const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            
+            const deck = [];
+            for (let suit of suits) {
+                for (let rank of ranks) {
+                    deck.push({
+                        suit: suit,
+                        rank: rank,
+                        color: (suit === '♥' || suit === '♦') ? 'red' : 'black'
+                    });
+                }
+            }
+            return deck;
+        }
+        
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+        
+        function drawCardFromDeck(deck) {
+            if (deck.length === 0) return null;
+            return deck.pop();
+        }
+        
+        function updateStatsDisplay() {
+            document.getElementById('gamesPlayed').textContent = gameState.stats.gamesPlayed;
+            document.getElementById('gamesWon').textContent = gameState.stats.gamesWon;
+            document.getElementById('winRate').textContent = gameState.stats.gamesPlayed > 0 ? 
+                Math.round((gameState.stats.gamesWon / gameState.stats.gamesPlayed) * 100) + '%' : '0%';
+            document.getElementById('currentStreak').textContent = gameState.stats.currentStreak;
+            
+            // Save stats to localStorage
+            localStorage.setItem('userStats', JSON.stringify(gameState.stats));
+        }
+        
+        // Enhanced card picker functions with probability tracking
+        function drawCard() {
+            if (deck.length === 0) {
+                alert('No cards left in the deck! Reset the deck to draw more cards.');
+                return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * deck.length);
+            const card = deck.splice(randomIndex, 1)[0];
+            drawnCards.push(card);
+            recentDraws.push(card);
+            
+            // Keep only last 10 recent draws
+            if (recentDraws.length > 10) {
+                recentDraws.shift();
+            }
+            
+            displayCard(card, 'mainCard');
+            updateRemainingCards();
+            updateCardHistory();
+            updateRecentDraws();
+            updateProbabilityDisplay();
+        }
+        
+        function drawQuickCard() {
+            if (deck.length === 0) {
+                alert('No cards left in the deck! Reset the deck to draw more cards.');
+                return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * deck.length);
+            const card = deck.splice(randomIndex, 1)[0];
+            drawnCards.push(card);
+            recentDraws.push(card);
+            
+            // Keep only last 10 recent draws
+            if (recentDraws.length > 10) {
+                recentDraws.shift();
+            }
+            
+            displayCard(card, 'quickCard');
+            updateRemainingCards();
+            updateProbabilityDisplay();
+        }
+        
+        function drawMultipleCards() {
+            if (deck.length === 0) {
+                alert('No cards left in the deck! Reset the deck to draw more cards.');
+                return;
+            }
+            
+            const count = Math.min(5, deck.length);
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * deck.length);
+                const card = deck.splice(randomIndex, 1)[0];
+                drawnCards.push(card);
+                recentDraws.push(card);
+                
+                // Keep only last 10 recent draws
+                if (recentDraws.length > 10) {
+                    recentDraws.shift();
+                }
+            }
+            
+            // Display the last drawn card
+            if (drawnCards.length > 0) {
+                displayCard(drawnCards[drawnCards.length - 1], 'mainCard');
+            }
+            
+            updateRemainingCards();
+            updateCardHistory();
+            updateRecentDraws();
+            updateProbabilityDisplay();
+        }
+        
+        function resetDeck() {
+            deck = createDeck();
+            drawnCards = [];
+            recentDraws = [];
+            
+            updateRemainingCards();
+            updateCardHistory();
+            updateRecentDraws();
+            updateProbabilityDisplay();
+            
+            document.getElementById('cardHistory').innerHTML = '<p>No cards drawn yet. Draw a card to see history.</p>';
+        }
+        
+        function shuffleDeck() {
+            shuffleDeck(deck);
+            alert('Deck shuffled!');
+            updateProbabilityDisplay();
+        }
+        
+        function displayCard(card, elementId) {
+            const cardElement = document.getElementById(elementId);
+            cardElement.className = `card ${card.color}`;
+            
+            // Update card content
+            const topElement = cardElement.querySelector('.card-top');
+            const centerElement = cardElement.querySelector('.card-center');
+            const bottomElement = cardElement.querySelector('.card-bottom');
+            
+            topElement.innerHTML = `<span>${card.rank}</span><span>${card.suit}</span>`;
+            centerElement.innerHTML = `<span>${card.rank}</span>`;
+            bottomElement.innerHTML = `<span>${card.rank}</span><span>${card.suit}</span>`;
+            
+            // Add flip animation
+            cardElement.style.transform = 'rotateY(180deg)';
+            setTimeout(() => {
+                cardElement.style.transform = 'rotateY(0deg)';
+            }, 300);
+        }
+        
+        function updateRemainingCards() {
+            document.getElementById('remainingCards').textContent = `Cards remaining: ${deck.length}`;
+        }
+        
+        function updateCardHistory() {
+            const historyContainer = document.getElementById('cardHistory');
+            
+            if (drawnCards.length === 0) {
+                historyContainer.innerHTML = '<p>No cards drawn yet. Draw a card to see history.</p>';
+                return;
+            }
+            
+            // Show last 5 cards
+            const recentCards = drawnCards.slice(-5);
+            let historyHTML = '';
+            
+            recentCards.forEach(card => {
+                historyHTML += `
+                    <div class="stat-card">
+                        <div class="stat-icon ${card.color === 'red' ? 'accent' : 'primary'}">
+                            <span>${card.suit}</span>
+                        </div>
+                        <div class="stat-info">
+                            <h3>${card.rank} ${card.suit}</h3>
+                            <p>${card.color === 'red' ? 'Red Card' : 'Black Card'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyContainer.innerHTML = historyHTML;
+        }
+        
+        function updateRecentDraws() {
+            const recentDrawsContainer = document.getElementById('recentDraws');
+            recentDrawsContainer.innerHTML = '';
+            
+            recentDraws.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = `history-card ${card.color}`;
+                cardElement.innerHTML = `
+                    <div>${card.rank}</div>
+                    <div style="text-align: center; font-size: 1.2rem;">${card.suit}</div>
+                    <div style="text-align: right;">${card.rank}</div>
+                `;
+                recentDrawsContainer.appendChild(cardElement);
+            });
+        }
+        
+        function updateProbabilityDisplay() {
+            // Calculate probabilities
+            const totalCards = deck.length;
+            if (totalCards === 0) {
+                document.getElementById('redProbability').textContent = '0%';
+                document.getElementById('blackProbability').textContent = '0%';
+                document.getElementById('faceProbability').textContent = '0%';
+                document.getElementById('aceProbability').textContent = '0%';
+                return;
+            }
+            
+            // Count cards by type
+            let redCount = 0;
+            let blackCount = 0;
+            let faceCount = 0;
+            let aceCount = 0;
+            
+            const rankCount = {};
+            const suitCount = {
+                '♥': 0,
+                '♦': 0,
+                '♣': 0,
+                '♠': 0
+            };
+            
+            const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            ranks.forEach(rank => {
+                rankCount[rank] = 0;
+            });
+            
+            deck.forEach(card => {
+                // Count by color
+                if (card.color === 'red') redCount++;
+                else blackCount++;
+                
+                // Count face cards
+                if (card.rank === 'J' || card.rank === 'Q' || card.rank === 'K') faceCount++;
+                
+                // Count aces
+                if (card.rank === 'A') aceCount++;
+                
+                // Count by rank
+                rankCount[card.rank]++;
+                
+                // Count by suit
+                suitCount[card.suit]++;
+            });
+            
+            // Update probability details
+            document.getElementById('redProbability').textContent = `${Math.round((redCount / totalCards) * 100)}%`;
+            document.getElementById('blackProbability').textContent = `${Math.round((blackCount / totalCards) * 100)}%`;
+            document.getElementById('faceProbability').textContent = `${Math.round((faceCount / totalCards) * 100)}%`;
+            document.getElementById('aceProbability').textContent = `${Math.round((aceCount / totalCards) * 100)}%`;
+            
+            // Update rank probabilities
+            const rankProbabilityContainer = document.getElementById('rankProbability');
+            rankProbabilityContainer.innerHTML = '';
+            
+            ranks.forEach(rank => {
+                const probability = (rankCount[rank] / totalCards) * 100;
+                const probabilityElement = document.createElement('div');
+                probabilityElement.className = 'probability-card';
+                probabilityElement.innerHTML = `
+                    <div class="probability-value">${Math.round(probability)}%</div>
+                    <div class="probability-label">${rank}</div>
+                    <div class="probability-bar">
+                        <div class="probability-fill" style="width: ${probability}%"></div>
+                    </div>
+                `;
+                rankProbabilityContainer.appendChild(probabilityElement);
+            });
+            
+            // Update suit probabilities
+            const suitProbabilityContainer = document.getElementById('suitProbability');
+            suitProbabilityContainer.innerHTML = '';
+            
+            const suits = [
+                { symbol: '♥', name: 'Hearts', color: 'red' },
+                { symbol: '♦', name: 'Diamonds', color: 'red' },
+                { symbol: '♣', name: 'Clubs', color: 'black' },
+                { symbol: '♠', name: 'Spades', color: 'black' }
+            ];
+            
+            suits.forEach(suit => {
+                const probability = (suitCount[suit.symbol] / totalCards) * 100;
+                const probabilityElement = document.createElement('div');
+                probabilityElement.className = 'probability-card';
+                probabilityElement.innerHTML = `
+                    <div class="card-probability">
+                        <div class="card-probability-icon ${suit.color}">${suit.symbol}</div>
+                        <div class="probability-value">${Math.round(probability)}%</div>
+                    </div>
+                    <div class="probability-label">${suit.name}</div>
+                    <div class="probability-bar">
+                        <div class="probability-fill" style="width: ${probability}%"></div>
+                    </div>
+                `;
+                suitProbabilityContainer.appendChild(probabilityElement);
+            });
+        }
+    </script>
+</body>
+</html>
